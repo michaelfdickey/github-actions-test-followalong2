@@ -1,7 +1,10 @@
 name: CI
 on: 
   pull_request:
-    branches: [develope]
+    branches: [develop]
+  push:
+    branches: [develop]
+  
     
 jobs:
   build:
@@ -17,6 +20,18 @@ jobs:
       - run: npm test -- --coverage
         env:
           CI: true
+      
+      - name: Build Project
+        if: github.event_name == 'push'
+        run: npm run build
         
+      - name: Deploy to staging
+        if: github.event_name == 'push'
+        run: npx surge --project ./build --domain silent-apparatus.surge.sh
+        env:
+          SURGE_LOGIN: ${{ secret.SURGE_USERNAME }}
+          SURGE_TOKEN: ${{ secret.SURGE_TOKEN }}
+        
+      
         
             
